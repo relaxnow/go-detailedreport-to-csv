@@ -27,7 +27,7 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: zip -r go-detailed-report-to-csv.zip ${{ GITHUB_WORKSPACE }}
+        run: zip -r go-detailed-report-to-csv.zip $GITHUB_WORKSPACE
         
       - name: Veracode Upload And Scan
         # You may pin to the exact commit or the version.
