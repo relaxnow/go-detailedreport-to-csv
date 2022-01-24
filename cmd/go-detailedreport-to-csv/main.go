@@ -5,12 +5,13 @@ import (
 	"encoding/csv"
 	"encoding/xml"
 	"fmt"
-	"github.com/relaxnow/go-detailedreport-to-csv/detailedreport"
-	"golang.org/x/net/html/charset"
 	"io/ioutil"
 	"os"
-)
 
+	"github.com/davecgh/go-spew/spew"
+	"github.com/relaxnow/go-detailedreport-to-csv/detailedreport"
+	"golang.org/x/net/html/charset"
+)
 
 func main() {
 	xmlFilePath := os.Args[1]
@@ -30,7 +31,6 @@ func main() {
 	// read our opened xmlFile as a byte array.
 	byteValue, _ := ioutil.ReadAll(xmlFile)
 
-
 	// we initialize our Users array
 	var report detailedreport.DetailedReport
 
@@ -44,24 +44,26 @@ func main() {
 		os.Exit(1)
 	}
 
-	//spew.Dump(report);
-	rows := [][]string{{"Flaw ID", "CWE ID", "CWE Name", "Module", "Source File", "Severity"}}
+	spew.Dump(report)
+	rows := [][]string{{"Flaw ID", "CWE ID", "CWE Name", "Module", "Source File", "Severity", "Status"}}
 	for i := 0; i < len(report.Severities); i++ {
 		var severity = report.Severities[i]
 		for j := 0; j < len(severity.Categories); j++ {
-			var category = severity.Categories[j];
+			var category = severity.Categories[j]
 			for k := 0; k < len(category.CWES); k++ {
-				var CWE = category.CWES[k];
+				var CWE = category.CWES[k]
 				for l := 0; l < len(CWE.StaticFlaws.Flaws); l++ {
-					var flaw = CWE.StaticFlaws.Flaws[l];
+					var flaw = CWE.StaticFlaws.Flaws[l]
 
 					rows = append(rows, []string{
 						flaw.ID,
 						CWE.ID,
 						CWE.Name,
 						flaw.Module,
-						flaw.SourceFile,
-						severity.Level})
+						flaw.SourceFile + ":" + flaw.Line,
+						severity.Level,
+						flaw.RemediationStatus,
+					})
 				}
 			}
 		}
@@ -69,7 +71,7 @@ func main() {
 
 	//spew.Dump(rows)
 
-	csvfile,err := os.Create("output.csv")
+	csvfile, err := os.Create("output.csv")
 
 	if err != nil {
 		fmt.Println(err)
